@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Principal - Sistema de Estoque</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">📦 Sistema de Estoque - IFMT</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="/">Dashboard</a>
+                <a class="nav-link" href="/produtos">Produtos</a>
+                <a class="nav-link" href="/fornecedores">Fornecedores</a>
+                <a class="nav-link" href="/lotes">Lotes</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+
+        <div class="mb-4">
+            <h2>Painel de Controle (Dashboard)</h2>
+            <p class="text-muted">Visão geral do estoque, validades e movimentações.</p>
+        </div>
+
+        <div class="row text-white mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-box-seam"></i> Total de Produtos</h5>
+                        <h3 class="display-6 fw-bold" th:text="${totalProdutos}">0</h3>
+                        <a href="/produtos" class="text-white text-decoration-none small">Gerenciar produtos &rarr;</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-warning text-dark shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> Próximos do Vencimento</h5>
+                        <h3 class="display-6 fw-bold" th:text="${#lists.size(proximosVencimento)}">0</h3>
+                        <span class="small">Lotes vencendo nos próximos 30 dias</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-danger shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-x-circle"></i> Lotes Vencidos</h5>
+                        <h3 class="display-6 fw-bold" th:text="${#lists.size(vencidos)}">0</h3>
+                        <span class="small">Requer descarte ou atenção imediata</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4" th:if="${not #lists.isEmpty(proximosVencimento)}">
+            <div class="card-header bg-warning text-dark fw-bold">
+                <i class="bi bi-clock-history"></i> Alerta: Lotes Próximos do Vencimento (Próximos 30 dias)
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Nº do Lote</th>
+                            <th>Quantidade Restante</th>
+                            <th>Data de Validade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="lote : ${proximosVencimento}">
+                            <td th:text="${lote.produto.nome}">Nome do Produto</td>
+                            <td th:text="${lote.numeroLote}">LOTE-001</td>
+                            <td th:text="${lote.quantidade}">50</td>
+                            <td class="text-danger fw-bold" th:text="${#temporals.format(lote.dataValidade, 'dd/MM/yyyy')}">10/12/2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4 border-danger" th:if="${not #lists.isEmpty(vencidos)}">
+            <div class="card-header bg-danger text-white fw-bold">
+                <i class="bi bi-slash-circle"></i> Atenção Crítica: Lotes Vencidos em Estoque
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Nº do Lote</th>
+                            <th>Quantidade</th>
+                            <th>Validade Expirada em</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="lote : ${vencidos}">
+                            <td th:text="${lote.produto.nome}">Produto</td>
+                            <td th:text="${lote.numeroLote}">LOTE-X</td>
+                            <td th:text="${lote.quantidade}">10</td>
+                            <td class="text-danger fw-bold" th:text="${#temporals.format(lote.dataValidade, 'dd/MM/yyyy')}">01/01/2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="alert alert-success shadow-sm" th:if="${#lists.isEmpty(proximosVencimento) and #lists.isEmpty(vencidos)}">
+            <i class="bi bi-check-circle-fill"></i> Tudo em ordem! Não há lotes vencidos ou próximos ao vencimento no momento.
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
